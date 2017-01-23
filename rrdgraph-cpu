@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# arg 1 : 'prod1' or 'test1'
+# arg 2 : start
+# arg 3 : end
+# arg 4 : user who will get the output in his homedir
+
+	if [[ $1 = 'prod1' ]]; then host='MOODLESRV01'
+	elif [[ $1 = "test1" ]]; then host='TESTSRVMOODLE'
+	elif [[ $1 = "e2" ]]; then host='elephant02'
+	else echo "Host omitted or invalid."; exit
+	fi
+
+	if [[ $2 = '' ]]; then start='-86400s'
+		else start=$2
+		fi
+
+	if [[ $3 = '' ]]; then end='N'
+		else end=$3
+	fi
+	
+	if [[ $4 = '' ]]; then outputuser=''
+		else outputuser=$4
+	fi
+	
+	daynum=`date +%d`
+	filename=$host-cpu-$daynum
+
+	rrdtool graph  /var/log/rrdtool/stats/$filename.png --imgformat PNG \
+		--title 'CPU Usage ('$host')' \
+		--vertical-label 'Percent' \
+		--width 3200 --height 800 \
+		--start $start --end $end \
+		--lower-limit 0 --upper-limit 100 \
+		DEF:u=/var/log/rrdtool/$host-cpu.rrd:usr:AVERAGE \
+		DEF:s=/var/log/rrdtool/$host-cpu.rrd:sys:AVERAGE \
+		DEF:i=/var/log/rrdtool/$host-cpu.rrd:iow:AVERAGE \
+		DEF:q=/var/log/rrdtool/$host-cpu.rrd:irq:AVERAGE \
+		DEF:t=/var/log/rrdtool/$host-cpu.rrd:total:AVERAGE \
+		AREA:t#cccccc:"Total" \
+		LINE:u#007f:"user" \
+		LINE:s#0000ff:"system" \
+		LINE:i#007f00:"iowait" \
+		LINE:q#007f7f:"irq"
+		
+	# copy the output to the user directory for download
+	if [[ $outputuser != '' ]]; then 
+		mv /var/log/rrdtool/stats/$filename.png /home/$outputuser
+		chown $outputuser:$outputuser /home/$outputuser/$filename.png
+	fi
+

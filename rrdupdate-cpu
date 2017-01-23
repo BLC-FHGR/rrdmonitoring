@@ -1,0 +1,5 @@
+#!/bin/bash
+	percent=`mpstat 5 1 | /usr/bin/tail -n 1 | awk '{print $3+$4 ":" $5 ":" $6 ":" $7+$8 ":" $3+$4+$5+$6+$7+$8}'`
+	host=`hostname -s`
+	#echo "rrdtool update /var/log/rrdtool/$host-cpu.rrd N:$percent"
+	rrdtool update /var/log/rrdtool/$host-cpu.rrd N:$percent

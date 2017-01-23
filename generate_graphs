@@ -1,0 +1,26 @@
+#!/bin/bash
+# arg 1 : 'prod1' or 'test1'
+# arg 2 : start in seconds before now
+# arg 3 : end in seconds before now or N for now
+# arg 4 : user who will get the output in his homedir
+
+	if [[ $1 = 'prod1' ]]; then host='MOODLESRV01'
+	elif [[ $1 = "test1" ]]; then host='TESTSRVMOODLE'
+	elif [[ $1 = "e2" ]]; then host='elephant02'
+	else echo "Host omitted or invalid."; exit
+	fi
+	
+	if [[ $2 = '' ]]; then start='-86400s'
+		else start=$2
+		fi
+
+	if [[ $3 = '' ]]; then end='N'
+		else end=$3
+		fi
+		
+	if [[ $4 = '' ]]; then outputuser=''
+		else outputuser=$4
+	fi	
+	
+	/opt/rrdtool/rrdgraph-cpu $1 $start $end $outputuser
+	/opt/rrdtool/rrdgraph-mem $1 $start $end $outputuser

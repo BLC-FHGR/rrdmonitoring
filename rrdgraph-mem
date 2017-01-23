@@ -1,0 +1,47 @@
+#!/bin/bash
+# arg 1 : 'prod1' or 'test1'
+# arg 2 : start
+# arg 3 : end
+# arg 4 : user who will get a copy of the output in his homedir
+
+	if [[ $1 = 'prod1' ]]; then host='MOODLESRV01'
+	elif [[ $1 = "test1" ]]; then host='TESTSRVMOODLE'
+	elif [[ $1 = "e2" ]]; then host='elephant02'
+	else echo "Host omitted or invalid."; exit
+	fi
+	
+	if [[ $2 = '' ]]; then start='-86400s'
+		else start=$2
+		fi
+
+	if [[ $3 = '' ]]; then end='N'
+		else end=$3
+		fi
+		
+	if [[ $4 = '' ]]; then outputuser=''
+		else outputuser=$4
+	fi	
+	
+	daynum=`date +%d`
+	filename=$host-mem-$daynum
+	
+	rrdtool graph  /var/log/rrdtool/stats/$filename.png --imgformat PNG \
+		--title 'Memory Usage ('$host')' \
+		--vertical-label 'Gigabytes' \
+		--width 1600 --height 800 \
+		--start $start --end $end \
+		--lower-limit 0 --upper-limit 10 \
+		DEF:u=/var/log/rrdtool/$host-mem.rrd:used:AVERAGE \
+		DEF:b=/var/log/rrdtool/$host-mem.rrd:buffers:AVERAGE \
+		DEF:c=/var/log/rrdtool/$host-mem.rrd:cache:AVERAGE \
+		DEF:t=/var/log/rrdtool/$host-mem.rrd:total:AVERAGE \
+		AREA:t#cccccc:"Total" \
+		LINE:u#00007f:"Used" \
+		LINE:c#0000ff:"cache" \
+		LINE:b#007f00:"buffers"
+		
+	# copy the output to the user directory for download
+	if [[ $outputuser != '' ]]; then 
+		mv /var/log/rrdtool/stats/$filename.png /home/$outputuser
+		chown $outputuser:$outputuser /home/$outputuser/$filename.png
+	fi

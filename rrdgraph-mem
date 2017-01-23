@@ -42,6 +42,6 @@
 		
 	# copy the output to the user directory for download
 	if [[ $outputuser != '' ]]; then 
-		mv /var/log/rrdtool/stats/$filename.png /home/$outputuser
+		cp /var/log/rrdtool/stats/$filename.png /home/$outputuser
 		chown $outputuser:$outputuser /home/$outputuser/$filename.png
 	fi

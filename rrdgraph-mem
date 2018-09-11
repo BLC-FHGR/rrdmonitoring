@@ -4,8 +4,8 @@
 # arg 3 : end
 # arg 4 : user who will get a copy of the output in his homedir
 
-	if [[ $1 = 'prod1' ]]; then host='MOODLESRV01'
-	elif [[ $1 = "test1" ]]; then host='TESTSRVMOODLE'
+	if [[ $1 = 'prod1' ]]; then host='VIRTSRVBLC05'
+	elif [[ $1 = "test1" ]]; then host='VIRTSRVBLC04'
 	elif [[ $1 = "e2" ]]; then host='elephant02'
 	else echo "Host omitted or invalid."; exit
 	fi
